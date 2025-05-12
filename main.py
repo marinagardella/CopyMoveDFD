@@ -55,7 +55,6 @@ def extract_patches(img, bboxes, padding):
     """
 
     patches = []
-    #h_img, w_img = img.shape
 
     for (x, y, w, h) in bboxes:
         # Add padding, but clip to image size
@@ -94,7 +93,6 @@ def hash_patches(patches, hash_size=8):
 
     return hashes
 
-from collections import defaultdict
 
 def group_similar_patches(hashes, max_distance=0):
     """
@@ -145,7 +143,9 @@ def match_patches_group(patches, group, threshold):
             # Resize to smallest shape for fair comparison
             h = min(patch_i.shape[0], patch_j.shape[0])
             w = min(patch_i.shape[1], patch_j.shape[1])
-            print(h,w)
+            
+            if h < 1 or w < 1:
+                continue 
 
             patch_i_resized = patch_i[:h, :w]
             patch_j_resized = patch_j[:h, :w]
@@ -183,7 +183,7 @@ def match_patches(patches, patch_groups, threshold):
     
     return all_matches
 
-def visualize_matches_on_document(img, patch_bboxes, matches, out_folder):
+def visualize_matches_on_document(img, patch_bboxes, matches):
     """
     Visualizes matching patches on the document image.
     """
@@ -217,11 +217,10 @@ def visualize_matches_on_document(img, patch_bboxes, matches, out_folder):
         report_lines.append(line)
 
     # Save image
-    output_path = f"{out_folder}/detection.png"
-    cv2.imwrite(output_path, img_color)
+    cv2.imwrite("detection.png", img_color)
 
     # Save report
-    with open(f"{out_folder}/detection.txt", "w") as f:
+    with open("detection.txt", "w") as f:
         for line in report_lines:
             f.write(line + "\n")
 
@@ -230,12 +229,6 @@ import os
 
 def detect(file, threshold = 0.8, hash_size = 8):
     max_distance = np.floor((1-threshold)*hash_size*hash_size)
-    print(max_distance)
-    img_name = Path(file).stem
-    out_folder = f"results/{img_name}"
-    #if os.path.exists(out_folder):
-    #    continue
-    Path(out_folder).mkdir(parents=True, exist_ok=True)
     img = load_image(file)
     binary = binarize_image(img)
     boxes = get_bounding_boxes(binary)
@@ -243,7 +236,7 @@ def detect(file, threshold = 0.8, hash_size = 8):
     hashes = hash_patches(patches, hash_size)
     groups = group_similar_patches(hashes, max_distance)
     matches = match_patches(patches, groups, threshold)
-    visualize_matches_on_document(img, boxes, matches, out_folder)
+    visualize_matches_on_document(img, boxes, matches)
 
 
 
