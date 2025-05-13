@@ -140,18 +140,14 @@ def match_patches_group(patches, group, threshold):
             patch_i = patches[group[i]]
             patch_j = patches[group[j]]
 
-            # Resize to smallest shape for fair comparison
-            h = min(patch_i.shape[0], patch_j.shape[0])
-            w = min(patch_i.shape[1], patch_j.shape[1])
-            
-            if h < 1 or w < 1:
+            if patch_i.shape[0] != patch_j.shape[0]:
+            	continue
+
+            if patch_i.shape[1] != patch_j.shape[1]:
                 continue 
 
-            patch_i_resized = patch_i[:h, :w]
-            patch_j_resized = patch_j[:h, :w]
-
-            total_pixels = h * w
-            num_equal = np.sum(patch_i_resized == patch_j_resized)
+            total_pixels = patch_i.shape[0] * patch_i.shape[1]
+            num_equal = np.sum(patch_i == patch_j)
             similarity = num_equal / total_pixels
             if similarity >= threshold:
                 matches.append((group[i], group[j], similarity))
