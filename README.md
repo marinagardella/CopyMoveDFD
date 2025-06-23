@@ -3,7 +3,7 @@
 
 ### Usage
 
-To run the method, simply provide the path to the input document image. The script will process the image and save the output `detection.png' showing all detected duplicated regions (exact matches up to `t'), each pair connected by a line and enclosed in bounding boxes. The output saved in the current working directory.
+To run the method, simply provide the path to the input document image. The script will process the image and save the output `detection.png` showing all detected duplicated regions (exact matches up to `t'), each pair connected by a line and enclosed in bounding boxes. The output saved in the current working directory.
 
 
 An example on how to run the method is given below:
