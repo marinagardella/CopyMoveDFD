@@ -10,7 +10,7 @@ An example on how to run the method is given below:
 ```
 python main.py input_document.png -t 0.8
 ```
-Where `-t` is the proportion of exact matches required to flag two patches.
+Where `t` is the proportion of exact matches required to flag two patches.
 
 ### Online demo
 
