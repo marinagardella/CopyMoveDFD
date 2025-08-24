@@ -179,7 +179,7 @@ def match_patches(patches, patch_groups, threshold):
     
     return all_matches
 
-def visualize_matches_on_document(img, patch_bboxes, matches):
+def visualize_matches_on_document(img, patch_bboxes, matches, output_dir):
     """
     Visualizes matching patches on the document image.
     """
@@ -213,17 +213,17 @@ def visualize_matches_on_document(img, patch_bboxes, matches):
         report_lines.append(line)
 
     # Save image
-    cv2.imwrite("detection.png", img_color)
+    cv2.imwrite(os.path.join(output_dir, "detection.png"), img_color)
 
     # Save report
-    with open("detection.txt", "w") as f:
+    with open(os.path.join(output_dir, "detection.txt"), "w") as f:
         for line in report_lines:
             f.write(line + "\n")
 
 from pathlib import Path
 import os
 
-def detect(file, threshold = 0.8, hash_size = 8):
+def detect(file, threshold = 0.8, hash_size = 8, separate_results=False):
     max_distance = np.floor((1-threshold)*hash_size*hash_size)
     img = load_image(file)
     binary = binarize_image(img)
@@ -232,8 +232,13 @@ def detect(file, threshold = 0.8, hash_size = 8):
     hashes = hash_patches(patches, hash_size)
     groups = group_similar_patches(hashes, max_distance)
     matches = match_patches(patches, groups, threshold)
-    visualize_matches_on_document(img, boxes, matches)
-
+    if separate_results:
+        img_name = Path(file).stem
+        output_dir = os.path.join("results", img_name)
+        os.makedirs(output_dir, exist_ok=True)
+    else:
+        output_dir = "."  
+    visualize_matches_on_document(img, boxes, matches, output_dir)
 
 
 import argparse
@@ -242,10 +247,11 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("image")
     parser.add_argument("-t")
+    parser.add_argument("--separate-results", action="store_true")
     parser.parse_args()
     args = parser.parse_args()
     file = args.image
-    trheshold = float(args.t)
-    detect(file, trheshold)
+    threshold = float(args.t)
+    detect(file, threshold, hash_size = 8, separate_results = args.separate_results)
 
 
